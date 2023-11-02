@@ -1,0 +1,4 @@
+<div>
+	<!--<input #value name="value" (blur)="processText(value.value)">-->
+	<input type="number" min="0" #value (blur)="processText(+value.value)">
+</div>
