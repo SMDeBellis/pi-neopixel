@@ -7,6 +7,7 @@ import { ButtonComponent } from './components/button/button.component';
 import { ControlPanelComponent } from './components/control-panel/control-panel.component';
 import { FramesComponent } from './components/frames/frames.component';
 import { NumericTextBoxComponent } from './components/numeric-text-box/numeric-text-box.component';
+import { PixelComponent } from './components/pixel/pixel.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { NumericTextBoxComponent } from './components/numeric-text-box/numeric-t
     ButtonComponent,
     ControlPanelComponent,
     FramesComponent,
-    NumericTextBoxComponent
+    NumericTextBoxComponent,
+    PixelComponent
   ],
   imports: [
     BrowserModule
