@@ -1,1 +1,8 @@
-<p>pixel works!</p>
+<div >
+    <input 
+    [(colorPicker)]="color"
+    [cpOutputFormat]="'rgba'" 
+    [style.background]="color"
+    (colorPickerChange)="onColorPickerColorChange($event)"
+    />
+</div>

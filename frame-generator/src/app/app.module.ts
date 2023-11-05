@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -20,7 +21,8 @@ import { PixelComponent } from './components/pixel/pixel.component';
     PixelComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    ColorPickerModule
   ],
   providers: [],
   bootstrap: [AppComponent]
