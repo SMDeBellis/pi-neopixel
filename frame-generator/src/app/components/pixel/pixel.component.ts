@@ -1,7 +1,5 @@
 import { OnInit, Component, Input, Output, EventEmitter, Injectable, Inject } from '@angular/core';
 import { Pixel } from '../../Pixel';
-import { Observable } from 'rxjs';
-import { Event } from '@angular/router';
 
 @Component({
   selector: 'app-pixel',
@@ -15,7 +13,6 @@ export class PixelComponent implements OnInit {
   @Input() row!: string;
   @Input() col!: string;
   @Input() color: string = "rgb(0,0,0)";
-  @Input() changedColor: string = "";
   @Output() colorChanged: EventEmitter<Pixel> = new EventEmitter();
 
   constructor() {}
@@ -32,5 +29,6 @@ export class PixelComponent implements OnInit {
   onColorPickerColorChange(changedColor: string) {
     this.pixel.rgb_color = changedColor;
     this.colorChanged.emit(this.pixel); 
+    console.log(this.pixel);
   }
 }

@@ -9,6 +9,8 @@ import { ControlPanelComponent } from './components/control-panel/control-panel.
 import { FramesComponent } from './components/frames/frames.component';
 import { NumericTextBoxComponent } from './components/numeric-text-box/numeric-text-box.component';
 import { PixelComponent } from './components/pixel/pixel.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { PixelComponent } from './components/pixel/pixel.component';
   ],
   imports: [
     BrowserModule,
-    ColorPickerModule
+    ColorPickerModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

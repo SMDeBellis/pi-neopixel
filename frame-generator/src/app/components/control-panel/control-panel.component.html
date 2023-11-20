@@ -1,3 +1,14 @@
-<div>
-    <app-numeric-text-box/><app-numeric-text-box/>
+<div class="container">
+    <h2>Control Panel</h2>
+    <form [formGroup]="displayDataForm" (submit)="submitDisplayData()">
+        <label for="animation-id">Animation ID</label>
+        <input id="animation-id" type="text" formControlName="animationId"/>
+
+        <label for="row">Row</label>
+        <input id="row" type="number" formControlName="row"/>
+
+        <label for="col">Col</label>
+        <input id="col" type="number" formControlName="col"/>
+        <button type="submit" class="primary">Submit</button>
+    </form>
 </div>
