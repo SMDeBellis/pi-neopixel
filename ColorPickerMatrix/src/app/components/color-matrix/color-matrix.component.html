@@ -1,7 +1,7 @@
 <table>
     <tr *ngFor="let row of rowsArray">
       <td *ngFor="let col of columnsArray">
-        <input type="color" row={{row}} col={{col}} (input)="onColorChange($event, row, col)" />
+        <input type="color" (input)="onColorChange($event)" />
       </td>
     </tr>
   </table>

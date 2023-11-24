@@ -6,20 +6,20 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class ColorReporterService {
-  private colorSubject = new Subject<{ color: string; row: number; column: number }>;
+  private colorSubject = new Subject<{ color: string; }>;
   color$ = this.colorSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  setColor(color: string, row: number, column: number) {
-    this.colorSubject.next({ color, row, column });
-    this.sendColorToAPI({ color, row, column }).subscribe(
+  setColor(color: string) {
+    this.colorSubject.next({color: color});
+    this.sendColorToAPI({ color }).subscribe(
       response => console.log('Color sent to API:', response),
       error => console.error('Error sending color to API:', error)
     );
   }
 
-  private sendColorToAPI(data: { color: string; row: number; column: number }) {
+  private sendColorToAPI(data: { color: string }) {
     const apiUrl = 'https://myapi.org/picker-change';
     return this.http.post(apiUrl, data);
   }

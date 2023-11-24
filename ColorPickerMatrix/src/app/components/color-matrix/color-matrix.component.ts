@@ -20,8 +20,8 @@ export class ColorMatrixComponent {
     this.columnsArray = Array(this.columns).fill(0);
   }
 
-  onColorChange(colorEvent: Event, row: number, col: number) {
+  onColorChange(colorEvent: Event) {
     const color = (colorEvent.target as HTMLInputElement).value  as string;
-    this.colorService.setColor(color, row, col);
+    this.colorService.setColor(color);
   }
 }
