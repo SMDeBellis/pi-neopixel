@@ -6,11 +6,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { ColorMatrixComponent } from './components/color-matrix/color-matrix.component';
 import { ColorReporterService } from './service/color-reporter.service';
+import { PixelComponent } from './components/pixel/pixel.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ColorMatrixComponent
+    ColorMatrixComponent,
+    PixelComponent
   ],
   imports: [
     BrowserModule,
