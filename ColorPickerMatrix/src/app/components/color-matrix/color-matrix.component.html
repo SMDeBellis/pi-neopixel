@@ -1,7 +1,8 @@
 <table>
-    <tr *ngFor="let row of rowsArray">
-      <td *ngFor="let col of columnsArray">
-        <input type="color" (input)="onColorChange($event)" />
+    <tr *ngFor="let row of rowsArray; index as i">
+      <td *ngFor="let col of columnsArray; index as j">
+        <!-- <input type="color" (input)="onColorChange($event)" /> -->
+        <app-pixel [row]="i" [col]="j" />
       </td>
     </tr>
   </table>

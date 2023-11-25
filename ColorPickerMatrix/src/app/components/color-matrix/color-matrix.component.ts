@@ -20,8 +20,5 @@ export class ColorMatrixComponent {
     this.columnsArray = Array(this.columns).fill(0);
   }
 
-  onColorChange(colorEvent: Event) {
-    const color = (colorEvent.target as HTMLInputElement).value  as string;
-    this.colorService.setColor(color);
-  }
+  
 }

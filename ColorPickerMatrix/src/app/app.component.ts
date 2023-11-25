@@ -12,9 +12,9 @@ export class AppComponent {
   matrixGenerated: boolean = false;
 
   constructor(private colorReporterService: ColorReporterService) {
-    this.colorReporterService.color$.subscribe(color => {
-      console.log('Color changed:', color);
-    });
+    // this.colorReporterService.color$.subscribe(color => {
+    //   console.log('Color changed:', color);
+    // });
   }
 
   generateMatrix() {
