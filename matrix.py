@@ -4,6 +4,7 @@ import neopixel
 import random
 import math
 import json
+from flask import Flask
 
 PIXEL_PIN = board.D18
 ROWS = 7
@@ -100,7 +101,12 @@ class NeopixelMatrix:
         h = hex_str.lstrip('#')
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
     
-
+    def hex_from_rgb_color(self, *args) -> str:
+        hex_str = "#"
+        for arg in args:
+            hex_str = hex_str + str(hex(int(arg))).replace('0x', '').zfill(2)
+        return hex_str
+    
     def get_pixel_location(self, row, col) -> int:
         if row % 2 == 0:
             return row * self.cols + col
@@ -147,108 +153,113 @@ def get_random_color():
 
 
 
-pixel_data_diag = '''
-{
-   "data": [ 
-    { "color": "#ffffff", "row": 0, "col": 0 },
-    { "color": "#ffffff", "row": 1, "col": 1 },
-    { "color": "#ffffff", "row": 2, "col": 2 },
-    { "color": "#ffffff", "row": 3, "col": 3 },
-    { "color": "#ffffff", "row": 4, "col": 4 },
-    { "color": "#ffffff", "row": 5, "col": 5 },
-    { "color": "#ffffff", "row": 6, "col": 6 }
-   ] 
-}
-'''
+def pixel_data_diag(hex_color_str) -> str:
+    x = {
+            "data": [ 
+                { "color": f"{hex_color_str}", "row": 0, "col": 0 },
+                { "color": f"{hex_color_str}", "row": 1, "col": 1 },
+                { "color": f"{hex_color_str}", "row": 2, "col": 2 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 4, "col": 4 },
+                { "color": f"{hex_color_str}", "row": 5, "col": 5 },
+                { "color": f"{hex_color_str}", "row": 6, "col": 6 }
+            ] 
+        }
+    return json.dumps(x)
 
-pixel_data_vert = '''
-{
-   "data": [ 
-    { "color": "#ffffff", "row": 0, "col": 3 },
-    { "color": "#ffffff", "row": 1, "col": 3 },
-    { "color": "#ffffff", "row": 2, "col": 3 },
-    { "color": "#ffffff", "row": 3, "col": 3 },
-    { "color": "#ffffff", "row": 4, "col": 3 },
-    { "color": "#ffffff", "row": 5, "col": 3 },
-    { "color": "#ffffff", "row": 6, "col": 3 }
-   ] 
-}
-'''
+def pixel_data_vert(hex_color_str) -> str: 
+    x = {
+            "data": [ 
+                { "color": f"{hex_color_str}", "row": 0, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 1, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 2, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 4, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 5, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 6, "col": 3 }
+            ] 
+        }
+    return json.dumps(x)
 
-pixel_data_hor = '''
-{
-   "data": [ 
-    { "color": "#ffffff", "row": 3, "col": 0 },
-    { "color": "#ffffff", "row": 3, "col": 1 },
-    { "color": "#ffffff", "row": 3, "col": 2 },
-    { "color": "#ffffff", "row": 3, "col": 3 },
-    { "color": "#ffffff", "row": 3, "col": 4 },
-    { "color": "#ffffff", "row": 3, "col": 5 },
-    { "color": "#ffffff", "row": 3, "col": 6 }
-   ] 
-}
-'''
+def pixel_data_hor(hex_color_str) -> str:
+    x = {
+            "data": [ 
+                { "color": f"{hex_color_str}", "row": 3, "col": 0 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 1 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 2 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 3 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 4 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 5 },
+                { "color": f"{hex_color_str}", "row": 3, "col": 6 }
+            ] 
+        }
+    return json.dumps(x)
 
-pixel_data_diag_rev = '''
-{
-   "data": [ 
-    { "color": "#ffffff", "row": 0, "col": 6 },
-    { "color": "#ffffff", "row": 1, "col": 5 },
-    { "color": "#ffffff", "row": 2, "col": 4 },
-    { "color": "#ffffff", "row": 3, "col": 3 },
-    { "color": "#ffffff", "row": 4, "col": 2 },
-    { "color": "#ffffff", "row": 5, "col": 1 },
-    { "color": "#ffffff", "row": 6, "col": 0 }
-   ] 
-}
-'''
+
+def pixel_data_diag_rev(hex_color_str) -> str:
+    x = {
+        "data": [ 
+            { "color": f"{hex_color_str}", "row": 0, "col": 6 },
+            { "color": f"{hex_color_str}", "row": 1, "col": 5 },
+            { "color": f"{hex_color_str}", "row": 2, "col": 4 },
+            { "color": f"{hex_color_str}", "row": 3, "col": 3 },
+            { "color": f"{hex_color_str}", "row": 4, "col": 2 },
+            { "color": f"{hex_color_str}", "row": 5, "col": 1 },
+            { "color": f"{hex_color_str}", "row": 6, "col": 0 }
+        ] 
+    }
+    return json.dumps(x)
 
 def clockwise_spin_animation(matrix, loop_iterations, fill_color, line_color_hex):
     for i in range(loop_iterations):
-        time.sleep(1/30)
+        time.sleep(1/15)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_diag)
-        time.sleep(1/30)
+        matrix.change_pixel_colors(pixel_data_diag(line_color_hex))
+        time.sleep(1/15)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_vert)
-        time.sleep(1/30)
+        matrix.change_pixel_colors(pixel_data_vert(line_color_hex))
+        time.sleep(1/15)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_diag_rev)
-        time.sleep(1/30)
+        matrix.change_pixel_colors(pixel_data_diag_rev(line_color_hex))
+        time.sleep(1/15)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_hor)
-        time.sleep(1/30)
+        matrix.change_pixel_colors(pixel_data_hor(line_color_hex))
+        time.sleep(1/15)
 
 def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_color_hex) -> None:
     for i in range(loop_iterations):
         time.sleep(1/30)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_diag)
+        matrix.change_pixel_colors(pixel_data_diag(line_color_hex))
         time.sleep(1/30)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_hor)
+        matrix.change_pixel_colors(pixel_data_hor(line_color_hex))
         time.sleep(1/30)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_diag_rev)
+        matrix.change_pixel_colors(pixel_data_diag_rev(line_color_hex))
         time.sleep(1/30)
         matrix.matrix_fill_color(fill_color)
-        matrix.change_pixel_colors(pixel_data_vert)
+        matrix.change_pixel_colors(pixel_data_vert(line_color_hex))
         time.sleep(1/30)
 
-pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
-clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
-clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), (3, 252, 232))
-clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
-clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
-clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
-clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
-counter_clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), (3, 252, 232))
-pixel_matrix.deinit()
+if __name__ == '__main__':
+ 
+    app = Flask(__name__) 
+    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+
+    clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    counter_clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    pixel_matrix.deinit()
 
 #try:
 #    while(True):
