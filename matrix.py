@@ -3,6 +3,7 @@ import board
 import neopixel
 import random
 import math
+import json
 
 PIXEL_PIN = board.D18
 ROWS = 7
@@ -95,17 +96,38 @@ class NeopixelMatrix:
             pixel_pin, rows * cols, brightness = 0.1, auto_write=auto_write
         )
 
+    def color_from_hex(self, hex_str) -> (int, int, int):
+        h = hex_str.lstrip('#')
+        return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+    
+
     def get_pixel_location(self, row, col) -> int:
         if row % 2 == 0:
             return row * self.cols + col
         return (row * self.cols) + (self.cols - col - 1)
 
-    def matrix_fill(self, r, g, b):
+    def change_pixel_color(self, color, row, col) -> None:
+        self.pixels[self.get_pixel_location(row, col)] = color
+        if not self.auto_write:
+            self.pixels.show()
+
+    def change_pixel_colors(self, pixel_data_json) -> None:
+        pixel_data_map = json.loads(pixel_data_json)
+        if 'data' in pixel_data_map:
+            for pixel in pixel_data_map['data']:
+                self.pixels[self.get_pixel_location(pixel['row'], pixel['col'])] = self.color_from_hex(pixel['color'])
+            if not self.auto_write:
+                self.pixels.show()
+
+    def matrix_fill_rgb(self, r, g, b) -> None:
         for i in range(self.rows):
             for j in range(self.cols):
                 self.pixels[self.get_pixel_location(i,j)] = (r, g, b)
         if not self.auto_write:
             self.pixels.show()
+
+    def matrix_fill_color(self, color) -> None:
+        self.matrix_fill_rgb(color[0], color[1], color[2])
 
     def apply_mask(self, mask_matrix, mask_rows, mask_cols):
         for i in range(mask_rows):
@@ -122,13 +144,110 @@ def get_random_color():
     return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
 
 
+
+
+
+pixel_data_diag = '''
+{
+   "data": [ 
+    { "color": "#ffffff", "row": 0, "col": 0 },
+    { "color": "#ffffff", "row": 1, "col": 1 },
+    { "color": "#ffffff", "row": 2, "col": 2 },
+    { "color": "#ffffff", "row": 3, "col": 3 },
+    { "color": "#ffffff", "row": 4, "col": 4 },
+    { "color": "#ffffff", "row": 5, "col": 5 },
+    { "color": "#ffffff", "row": 6, "col": 6 }
+   ] 
+}
+'''
+
+pixel_data_vert = '''
+{
+   "data": [ 
+    { "color": "#ffffff", "row": 0, "col": 3 },
+    { "color": "#ffffff", "row": 1, "col": 3 },
+    { "color": "#ffffff", "row": 2, "col": 3 },
+    { "color": "#ffffff", "row": 3, "col": 3 },
+    { "color": "#ffffff", "row": 4, "col": 3 },
+    { "color": "#ffffff", "row": 5, "col": 3 },
+    { "color": "#ffffff", "row": 6, "col": 3 }
+   ] 
+}
+'''
+
+pixel_data_hor = '''
+{
+   "data": [ 
+    { "color": "#ffffff", "row": 3, "col": 0 },
+    { "color": "#ffffff", "row": 3, "col": 1 },
+    { "color": "#ffffff", "row": 3, "col": 2 },
+    { "color": "#ffffff", "row": 3, "col": 3 },
+    { "color": "#ffffff", "row": 3, "col": 4 },
+    { "color": "#ffffff", "row": 3, "col": 5 },
+    { "color": "#ffffff", "row": 3, "col": 6 }
+   ] 
+}
+'''
+
+pixel_data_diag_rev = '''
+{
+   "data": [ 
+    { "color": "#ffffff", "row": 0, "col": 6 },
+    { "color": "#ffffff", "row": 1, "col": 5 },
+    { "color": "#ffffff", "row": 2, "col": 4 },
+    { "color": "#ffffff", "row": 3, "col": 3 },
+    { "color": "#ffffff", "row": 4, "col": 2 },
+    { "color": "#ffffff", "row": 5, "col": 1 },
+    { "color": "#ffffff", "row": 6, "col": 0 }
+   ] 
+}
+'''
+
+def clockwise_spin_animation(matrix, loop_iterations, fill_color, line_color_hex):
+    for i in range(loop_iterations):
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_diag)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_vert)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_diag_rev)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_hor)
+        time.sleep(1/30)
+
+def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_color_hex) -> None:
+    for i in range(loop_iterations):
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_diag)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_hor)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_diag_rev)
+        time.sleep(1/30)
+        matrix.matrix_fill_color(fill_color)
+        matrix.change_pixel_colors(pixel_data_vert)
+        time.sleep(1/30)
+
 pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
-pixel_matrix.matrix_fill(255, 0, 0)
-time.sleep(10)
-pixel_matrix.matrix_fill(0, 255, 0)
-time.sleep(10)
-pixel_matrix.matrix_fill(0, 0, 255)
-time.sleep(10)
+clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
+clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), (3, 252, 232))
+clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
+clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
+clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
+clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), (3, 252, 232))
+counter_clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), (3, 252, 232))
 pixel_matrix.deinit()
 
 #try:
