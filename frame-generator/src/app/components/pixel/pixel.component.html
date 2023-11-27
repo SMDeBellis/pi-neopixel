@@ -1,0 +1,8 @@
+<div class="btn btn-sm">
+    <input
+    [(colorPicker)]="color"
+    [cpOutputFormat]="'rgba'" 
+    [style.background]="color"
+    (colorPickerChange)="onColorPickerColorChange($event)"
+    />
+</div>

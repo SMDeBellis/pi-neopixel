@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class FramesComponent {
 
+  constructor(){}
+
+  buildPixelMatrix(data: [string, number, number]){
+    console.log(data);
+  }
 }
