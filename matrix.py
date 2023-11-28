@@ -267,7 +267,7 @@ if __name__ == '__main__':
         print("Calling logout. Shutting down program.")
         exit(0)
 
-    app.run()
+    app.run(host="10.0.0.110")
     
     # clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
     # clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
