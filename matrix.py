@@ -4,7 +4,7 @@ import neopixel
 import random
 import math
 import json
-from flask import Flask
+from flask import Flask, request, flash
 
 PIXEL_PIN = board.D18
 ROWS = 7
@@ -247,19 +247,32 @@ if __name__ == '__main__':
     app = Flask(__name__) 
     pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
 
-    clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(0, 0, 0))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    counter_clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(3, 252, 232))
-    pixel_matrix.deinit()
+    @app.route('/picker-change', methods = ['POST'])
+    def picker_change() -> None:
+        if request.content_type == 'application/json':
+            pixel_matrix.change_pixel_colors(request.json)
+        else:
+            flash("Request must be type application/json.")
+
+    @app.route('/logout')
+    def logout() -> None:
+        pixel_matrix.deinit()
+        print("Calling logout. Shutting down program.")
+        exit(0)
+
+    # clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(0, 0, 0))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # counter_clockwise_spin_animation(pixel_matrix, 20, (100, 50, 100), pixel_matrix.hex_from_rgb_color(3, 252, 232))
+    # pixel_matrix.deinit()
 
 #try:
 #    while(True):
