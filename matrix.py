@@ -6,6 +6,7 @@ import math
 import json
 from flask import Flask, request, flash
 from multiprocessing import Process
+from flask_cors import CORS, cross_origin
 
 PIXEL_PIN = board.D18
 ROWS = 7
@@ -246,22 +247,27 @@ def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_
 if __name__ == '__main__':
  
     app = Flask(__name__); 
+    app.config['CORS_HEADERS'] = 'Content-Type'
+
     pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+    cors = CORS(app, resources={r"/picker-change|/logout": {"origins": "http://localhost:port"}})
     
 
     @app.route('/picker-change', methods = ['POST'])
-    def picker_change():
+    @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
+    def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
         if request.content_type == 'application/json':
             print(f"request.json type: {request.json}")
             pixel_matrix.change_pixel_colors(json.dumps(request.json))
-            return 'OK'
+            return json.dumps({ "status": 200, "statusText": "OK"})
 
         else:
             flash("Request must be type application/json.")
-            return 'OK'
+            return json.dumps({ "status": 200, "statusText": "OK"})
         
 
     @app.route('/logout')
+    @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout() -> None:
         pixel_matrix.deinit()
         print("Calling logout. Shutting down program.")
