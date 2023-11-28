@@ -5,6 +5,7 @@ import random
 import math
 import json
 from flask import Flask, request, flash
+from multiprocessing import Process
 
 PIXEL_PIN = board.D18
 ROWS = 7
@@ -244,15 +245,21 @@ def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_
 
 if __name__ == '__main__':
  
-    app = Flask(__name__) 
+    app = Flask(__name__); 
     pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+    
 
     @app.route('/picker-change', methods = ['POST'])
-    def picker_change() -> None:
+    def picker_change():
         if request.content_type == 'application/json':
-            pixel_matrix.change_pixel_colors(request.json)
+            print(f"request.json type: {request.json}")
+            pixel_matrix.change_pixel_colors(json.dumps(request.json))
+            return 'OK'
+
         else:
             flash("Request must be type application/json.")
+            return 'OK'
+        
 
     @app.route('/logout')
     def logout() -> None:
@@ -260,6 +267,8 @@ if __name__ == '__main__':
         print("Calling logout. Shutting down program.")
         exit(0)
 
+    app.run()
+    
     # clockwise_spin_animation(pixel_matrix, 20, (0, 255, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
     # clockwise_spin_animation(pixel_matrix, 20, (255, 0, 0), pixel_matrix.hex_from_rgb_color(0, 0, 0))
     # clockwise_spin_animation(pixel_matrix, 20, (0, 0, 255), pixel_matrix.hex_from_rgb_color(0, 0, 0))
