@@ -1,0 +1,10 @@
+{
+    "/picker-change" : {
+        "target": "http://10.0.0.110:5000",
+        "secure": false
+    },
+    "/logout" : {
+        "target": "http://10.0.0.110:5000",
+        "secure": false
+    }
+}

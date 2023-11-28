@@ -22,7 +22,7 @@ export class ColorReporterService {
   }
 
   private sendColorToAPI(data: { color: string, row: number, col: number }) {
-    const apiUrl = 'https://10.0.0.110/picker-change';
+    const apiUrl = 'http://10.0.0.110:5000/picker-change';
     return this.http.post(apiUrl, data);
   }
 
@@ -34,7 +34,7 @@ export class ColorReporterService {
   }
 
   private sendLogout() {
-    const apiUrl = 'https://10.0.0.110/logout';
+    const apiUrl = 'http://10.0.0.110:5000/logout';
     return this.http.post(apiUrl, { "logout": true });
   }
 }
