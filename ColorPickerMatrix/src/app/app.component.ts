@@ -10,14 +10,20 @@ export class AppComponent {
   numRows: number = 0;
   numColumns: number = 0;
   matrixGenerated: boolean = false;
+  logged_in: boolean = false;
 
   constructor(private colorReporterService: ColorReporterService) {
-    // this.colorReporterService.color$.subscribe(color => {
-    //   console.log('Color changed:', color);
-    // });
+    this.colorReporterService.connected$.subscribe( v => {
+      console.log("loggedIn: ", v);
+      this.logged_in = v;
+
+    });
   }
 
   generateMatrix() {
-    this.matrixGenerated = true;
+    if(this.logged_in) {
+      this.matrixGenerated = true;
+    }
+    
   }
 }

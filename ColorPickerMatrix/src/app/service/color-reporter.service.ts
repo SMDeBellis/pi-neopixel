@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +9,10 @@ import { BehaviorSubject, Subject } from 'rxjs';
 export class ColorReporterService {
   private colorSubject = new Subject<{ color: string; row: number; col: number }>;
   color$ = this.colorSubject.asObservable();
-  private logoutSubject = new BehaviorSubject<boolean>(false);
-  logout$ = this.logoutSubject.asObservable();
+
+  private connectedSubject = new BehaviorSubject<boolean>(false);
+  connected$ = this.connectedSubject.asObservable();
+  connection_uuid: string = "";
 
   constructor(private http: HttpClient) {}
 
@@ -27,16 +30,43 @@ export class ColorReporterService {
     return this.http.post(apiUrl, wrapped_data);
   }
 
-  logout() {
-    this.sendLogout().subscribe(
-      response => console.log("logged out of matrix."),
-      error => console.error("Error sending logout.")
-    );
+  connect() {
+    if(this.connection_uuid == ""){
+      this.sendConnect().subscribe(
+        response => { 
+          console.log(response);
+          this.connectedSubject.next(true);
+        },
+        error => {
+          console.log("Error connecting to server.");
+          this.connectedSubject.next(false);
+          this.connection_uuid = "";
+        }
+      );
+    }
   }
 
-  private sendLogout() {
+  private sendConnect() {
+    this.connection_uuid = uuid();
+    const apiUrl = 'http://10.0.0.110:5000/connect';
+    return this.http.post(apiUrl, { "connection-id":  this.connection_uuid});
+  }
+
+  logout() {
+    this.sendLogout().subscribe(response => { 
+      console.log(response);
+      this.connectedSubject.next(false);
+      this.connection_uuid = "";
+    },
+    error => {
+      console.log("Error connecting to server.");
+      this.connectedSubject.next(false);
+    })
+  }
+
+  sendLogout() {
     const apiUrl = 'http://10.0.0.110:5000/logout';
-    return this.http.post(apiUrl, { "logout": true });
+    return this.http.post(apiUrl, { "logout": true, "connection-id:": this.connection_uuid });
   }
 }
  

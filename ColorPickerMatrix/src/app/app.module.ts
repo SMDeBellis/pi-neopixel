@@ -7,17 +7,21 @@ import { AppComponent } from './app.component';
 import { ColorMatrixComponent } from './components/color-matrix/color-matrix.component';
 import { ColorReporterService } from './service/color-reporter.service';
 import { PixelComponent } from './components/pixel/pixel.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
     AppComponent,
     ColorMatrixComponent,
-    PixelComponent
+    PixelComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule
   ],
   providers: [ColorReporterService],
   bootstrap: [AppComponent]
