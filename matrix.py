@@ -273,7 +273,7 @@ if __name__ == '__main__':
     @app.route('/connect', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def connect():
-        if current_connection_uuid:
+        if current_connection_uuid != "":
             return jsonify({"connection-id": current_connection_uuid}), 409
         else:
             if request.content_type == 'application/json':
