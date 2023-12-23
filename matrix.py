@@ -249,6 +249,7 @@ if __name__ == '__main__':
  
     app = Flask(__name__); 
     app.config['CORS_HEADERS'] = 'Content-Type'
+    app.secret_key = 'BAD_SECRET_KEY'
 
     cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
     
