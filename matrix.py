@@ -243,16 +243,20 @@ def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_
         matrix.matrix_fill_color(fill_color)
         matrix.change_pixel_colors(pixel_data_vert(line_color_hex))
         time.sleep(1/30)
+        
+        
+current_connection_uuid = ""
+pixel_matrix = None
 
 if __name__ == '__main__':
  
     app = Flask(__name__); 
     app.config['CORS_HEADERS'] = 'Content-Type'
 
-    pixel_matrix = None
-    cors = CORS(app, resources={r"/picker-change|/logout": {"origins": "http://localhost:port"}})
     
-    current_connection_uuid = ""
+    cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
+    
+    
 
     @app.route('/picker-change', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
