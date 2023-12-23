@@ -4,7 +4,7 @@ import neopixel
 import random
 import math
 import json
-from flask import Flask, request, flash, jsonify
+from flask import Flask, request, flash, jsonify, session
 from multiprocessing import Process
 from flask_cors import CORS, cross_origin
 
@@ -244,32 +244,27 @@ def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_
         matrix.change_pixel_colors(pixel_data_vert(line_color_hex))
         time.sleep(1/30)
         
-        
-current_connection_uuid = ""
-pixel_matrix = None
 
 if __name__ == '__main__':
  
     app = Flask(__name__); 
     app.config['CORS_HEADERS'] = 'Content-Type'
 
-    
     cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
-    
     
 
     @app.route('/picker-change', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
-        if pixel_matrix:
+        if 'pixel_matrix' in session:
             if request.content_type == 'application/json':
                 print(f"request.json type: {request.json}")
-                pixel_matrix.change_pixel_colors(json.dumps(request.json))
-                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
+                session['pixel_matrix'].change_pixel_colors(json.dumps(request.json))
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
 
             else:
                 flash("Request must be type application/json.")
-                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
         else:
             return jsonify({"error": "No connection. Please connect."}), 501
         
@@ -277,15 +272,15 @@ if __name__ == '__main__':
     @app.route('/connect', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def connect():
-        if current_connection_uuid != "":
-            return jsonify({"connection-id": current_connection_uuid}), 409
+        if 'current_connection_uuid' in session:
+            return jsonify({"connection-id": session['current_connection_uuid']}), 409
         else:
             if request.content_type == 'application/json':
                 data = request.get_json()
                 try:
-                    current_connection_uuid = data['connection-id']
-                    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
-                    return jsonify({"connection-id", current_connection_uuid}), 200
+                    session['current_connection_uuid'] = data['connection-id']
+                    session['pixel_matrix'] = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+                    return jsonify({"connection-id", session['current_connection_uuid']}), 200
                 except KeyError as ke:
                     return jsonify({"error": "Missing connection-id"}), 411
             else:
@@ -294,13 +289,12 @@ if __name__ == '__main__':
     @app.route('/logout')
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout():
-        if pixel_matrix:
+        if 'pixel_matrix' in session:
             try:
-                pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
+                session['pixel_matrix'].deinit() # maybe return a server error code if this is problematic. 
             finally:
-                pixel_matrix = None
-                conn_id = current_connection_uuid
-                current_connection_uuid = ""
+                session.pop('pixel_matrix', default=None)
+                conn_id = session.pop('current_connection_uuid', default="")
                 return jsonify({"connection-id": conn_id}), 200
 
 
