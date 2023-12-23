@@ -4,7 +4,7 @@ import neopixel
 import random
 import math
 import json
-from flask import Flask, request, flash
+from flask import Flask, request, flash, jsonify
 from multiprocessing import Process
 from flask_cors import CORS, cross_origin
 
@@ -249,29 +249,56 @@ if __name__ == '__main__':
     app = Flask(__name__); 
     app.config['CORS_HEADERS'] = 'Content-Type'
 
-    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+    pixel_matrix = None
     cors = CORS(app, resources={r"/picker-change|/logout": {"origins": "http://localhost:port"}})
     
+    current_connection_uuid = ""
 
     @app.route('/picker-change', methods = ['POST'])
-    @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
+    @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
-        if request.content_type == 'application/json':
-            print(f"request.json type: {request.json}")
-            pixel_matrix.change_pixel_colors(json.dumps(request.json))
-            return json.dumps({ "status": 200, "statusText": "OK"})
+        if pixel_matrix:
+            if request.content_type == 'application/json':
+                print(f"request.json type: {request.json}")
+                pixel_matrix.change_pixel_colors(json.dumps(request.json))
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
 
+            else:
+                flash("Request must be type application/json.")
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
         else:
-            flash("Request must be type application/json.")
-            return json.dumps({ "status": 200, "statusText": "OK"})
+            return jsonify({"error": "No connection. Please connect."}), 501
         
+
+    @app.route('/connect', methods = ['POST'])
+    @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+    def connect():
+        if current_connection_uuid:
+            return jsonify({"connection-id": current_connection_uuid}), 409
+        else:
+            if request.content_type == 'application/json':
+                data = request.get_json()
+                try:
+                    current_connection_uuid = data['connection-id']
+                    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
+                    return jsonify({"connection-id", current_connection_uuid}), 200
+                except KeyError as ke:
+                    return jsonify({"error": "Missing connection-id"}), 411
+            else:
+                return jsonify({"error": "Server only excepts application/json requests."}), 411
 
     @app.route('/logout')
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
-    def logout() -> None:
-        pixel_matrix.deinit()
-        print("Calling logout. Shutting down program.")
-        exit(0)
+    def logout():
+        if pixel_matrix:
+            try:
+                pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
+            finally:
+                pixel_matrix = None
+                conn_id = current_connection_uuid
+                current_connection_uuid = ""
+                return jsonify({"connection-id": conn_id}), 200
+
 
     app.run(host="10.0.0.110")
     

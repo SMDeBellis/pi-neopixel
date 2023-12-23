@@ -39,7 +39,7 @@ export class ColorReporterService {
         },
         error => {
           console.log("Error connecting to server.");
-          this.connectedSubject.next(false);
+          this.connectedSubject.next(false)
           this.connection_uuid = "";
         }
       );
