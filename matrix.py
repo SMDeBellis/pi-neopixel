@@ -297,6 +297,7 @@ if __name__ == '__main__':
                     pixel_matrix.initialize(ROWS,COLS)
                     id = session['current_connection_uuid']
                     print("current_connection_uuid: ", session['current_connection_uuid'])
+                    print("type(id): ", type(id))
                     return jsonify({"connection-id", id}), 200
                 except KeyError as ke:
                     return jsonify({"error": "Missing connection-id"}), 411
