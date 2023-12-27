@@ -295,6 +295,7 @@ if __name__ == '__main__':
                     session['current_connection_uuid'] = data['connection-id']
                     pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
                     pixel_matrix.initialize(ROWS,COLS)
+                    print("current_connection_uuid: ", session['current_connection_uuid'])
                     return jsonify({"connection-id", session['current_connection_uuid']}), 200
                 except KeyError as ke:
                     return jsonify({"error": "Missing connection-id"}), 411
