@@ -298,7 +298,7 @@ if __name__ == '__main__':
                     id = session['current_connection_uuid']
                     print("current_connection_uuid: ", session['current_connection_uuid'])
                     print("type(id): ", type(id))
-                    return jsonify({"connection-id", id}), 200
+                    return jsonify({"connection-id", id})
                 except KeyError as ke:
                     return jsonify({"error": "Missing connection-id"}), 411
             else:
