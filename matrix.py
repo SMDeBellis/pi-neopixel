@@ -295,14 +295,12 @@ if __name__ == '__main__':
                     session['current_connection_uuid'] = data['connection-id']
                     pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
                     pixel_matrix.initialize(ROWS,COLS)
-                    id = session['current_connection_uuid']
                     print("current_connection_uuid: ", session['current_connection_uuid'])
-                    print("type(id): ", type(id))
-                    return jsonify({"connection-id", id})
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
                 except KeyError as ke:
-                    return jsonify({"error": "Missing connection-id"}), 411
+                    return json.dumps({"error": "Missing connection-id", "status": 411})
             else:
-                return jsonify({"error": "Server only excepts application/json requests."}), 411
+                return json.dumps({"error": "Server only excepts application/json requests.", "status": 411})
 
     @app.route('/logout')
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
