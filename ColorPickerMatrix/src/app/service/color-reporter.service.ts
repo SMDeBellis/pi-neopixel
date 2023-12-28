@@ -26,7 +26,7 @@ export class ColorReporterService {
 
   private sendColorToAPI(data: { color: string, row: number, col: number }) {
     const apiUrl = 'http://10.0.0.110:5000/picker-change';
-    let wrapped_data = {"data": [data]} 
+    let wrapped_data = {"data": [data], "connection-id:": this.connection_uuid} 
     return this.http.post(apiUrl, wrapped_data);
   }
 

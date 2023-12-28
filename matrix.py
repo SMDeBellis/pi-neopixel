@@ -284,12 +284,16 @@ if __name__ == '__main__':
     @app.route('/picker-change', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
+        global pixel_matrix
         if pixel_matrix:
             if request.content_type == 'application/json':
-                print(f"request.json type: {request.json}")
-                pixel_matrix.change_pixel_colors(json.dumps(request.json))
-                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
-
+                data = json.dumps(request.json)
+                if data['connection-id'] == session['current_connection_uuid']:
+                    print(f"request.json type: {request.json}")
+                    pixel_matrix.change_pixel_colors(json.dumps(request.json))
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
+                else:
+                    return json.dumps({"error": "Bad connection.","status": 501, "connection-id": session['current_connection_uuid']})
             else:
                 flash("Request must be type application/json.")
                 return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
