@@ -287,7 +287,7 @@ if __name__ == '__main__':
         global pixel_matrix
         if pixel_matrix:
             if request.content_type == 'application/json':
-                data = json.dumps(request.json)
+                data = request.get_json()
                 if data['connection-id'] == session['current_connection_uuid']:
                     print(f"request.json type: {request.json}")
                     pixel_matrix.change_pixel_colors(json.dumps(request.json))
