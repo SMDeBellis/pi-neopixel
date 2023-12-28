@@ -312,10 +312,12 @@ if __name__ == '__main__':
         if 'current_connection_uuid' in session:
             return json.dumps({"connection-id": session['current_connection_uuid'], "status": 409})
         else:
+            global current_connection_uuid
             if request.content_type == 'application/json':
                 data = request.get_json()
                 try:
                     session['current_connection_uuid'] = data['connection-id']
+                    current_connection_uuid = data['connection-id']
                     initialize_matrix()
                     print("current_connection_uuid: ", session['current_connection_uuid'])
                     return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
@@ -327,8 +329,10 @@ if __name__ == '__main__':
     @app.route('/logout', methods=['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout():
+        global current_connection_uuid
         deinit_matrix()
         conn_id = session.pop('current_connection_uuid', default="")
+        current_connection_uuid = None
         return json.dumps({"connection-id": conn_id, "status": 200})
 
 
