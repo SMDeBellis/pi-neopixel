@@ -268,11 +268,13 @@ if __name__ == '__main__':
     pixel_matrix = None
 
     def initialize_matrix():
+        global pixel_matrix
         if not pixel_matrix:
             pixel_matrix = NeopixelMatrix(ROWS,COLS,PIXEL_PIN, False)
             pixel_matrix.initialize(ROWS,COLS)
 
     def deinit_matrix():
+        global pixel_matrix
         try:
             pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
         finally:
