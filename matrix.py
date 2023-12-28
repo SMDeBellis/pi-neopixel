@@ -305,7 +305,7 @@ if __name__ == '__main__':
     @app.route('/logout', methods=['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout():
-        if pixel_matrix:
+        if pixel_matrix != None:
             try:
                 pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
             finally:
