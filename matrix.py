@@ -267,6 +267,18 @@ if __name__ == '__main__':
     cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
     pixel_matrix = None
 
+    def initialize_matrix():
+        if not pixel_matrix:
+            pixel_matrix = NeopixelMatrix(ROWS,COLS,PIXEL_PIN, False)
+            pixel_matrix.initialize(ROWS,COLS)
+
+    def deinit_matrix():
+        try:
+            pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
+        finally:
+            pixel_matrix = None
+
+
     @app.route('/picker-change', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
@@ -293,8 +305,7 @@ if __name__ == '__main__':
                 data = request.get_json()
                 try:
                     session['current_connection_uuid'] = data['connection-id']
-                    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
-                    pixel_matrix.initialize(ROWS,COLS)
+                    initialize_matrix()
                     print("current_connection_uuid: ", session['current_connection_uuid'])
                     return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
                 except KeyError as ke:
@@ -305,13 +316,9 @@ if __name__ == '__main__':
     @app.route('/logout', methods=['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout():
-        if pixel_matrix != None:
-            try:
-                pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
-            finally:
-                pixel_matrix = None
-                conn_id = session.pop('current_connection_uuid', default="")
-                return json.dumps({"connection-id": conn_id, "status": 200})
+        deinit_matrix()
+        conn_id = session.pop('current_connection_uuid', default="")
+        return json.dumps({"connection-id": conn_id, "status": 200})
 
 
     app.run(host="10.0.0.110")
