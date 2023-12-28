@@ -280,14 +280,14 @@ if __name__ == '__main__':
                 flash("Request must be type application/json.")
                 return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
         else:
-            return jsonify({"error": "No connection. Please connect."}), 501
+            return json.dumps({"error": "No connection. Please connect.", "status": 501})
         
 
     @app.route('/connect', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def connect():
         if 'current_connection_uuid' in session:
-            return jsonify({"connection-id": session['current_connection_uuid']}), 409
+            return json.dumps({"connection-id": session['current_connection_uuid'], "status": 409})
         else:
             if request.content_type == 'application/json':
                 data = request.get_json()
@@ -311,7 +311,7 @@ if __name__ == '__main__':
             finally:
                 pixel_matrix = None
                 conn_id = session.pop('current_connection_uuid', default="")
-                return jsonify({"connection-id": conn_id}), 200
+                return json.dumps({"connection-id": conn_id, "status": 200})
 
 
     app.run(host="10.0.0.110")
