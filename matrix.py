@@ -302,7 +302,7 @@ if __name__ == '__main__':
             else:
                 return json.dumps({"error": "Server only excepts application/json requests.", "status": 411})
 
-    @app.route('/logout')
+    @app.route('/logout', methods=['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def logout():
         if pixel_matrix:
