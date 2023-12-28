@@ -266,6 +266,7 @@ if __name__ == '__main__':
 
     cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
     pixel_matrix = None
+    current_connection_uuid = None
 
     def initialize_matrix():
         global pixel_matrix
@@ -285,19 +286,22 @@ if __name__ == '__main__':
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
         global pixel_matrix
+        global current_connection_uuid
         if pixel_matrix:
             if request.content_type == 'application/json':
                 data = request.get_json()
-                print("data: ", data)
-                if data['connection-id'] == session['current_connection_uuid']:
-                    print(f"request.json type: {request.json}")
+                if data['connection-id'] == current_connection_uuid:
+                    try:
+                        print("uuid: ", session['current_connection_uuid'])
+                    except KeyError:
+                        print("No uuid in session.") 
                     pixel_matrix.change_pixel_colors(json.dumps(request.json))
-                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
                 else:
-                    return json.dumps({"error": "Bad connection.","status": 501, "connection-id": session['current_connection_uuid']})
+                    return json.dumps({"error": "Bad connection.","status": 501, "connection-id": current_connection_uuid})
             else:
                 flash("Request must be type application/json.")
-                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
         else:
             return json.dumps({"error": "No connection. Please connect.", "status": 501})
         
