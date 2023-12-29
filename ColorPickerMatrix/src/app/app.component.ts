@@ -16,14 +16,15 @@ export class AppComponent {
     this.colorReporterService.connected$.subscribe( v => {
       console.log("loggedIn: ", v);
       this.logged_in = v;
-
+      if(!this.logged_in && this.matrixGenerated){
+        this.matrixGenerated = false;
+        this.numRows = 0;
+        this.numColumns = 0;
+      }
     });
   }
 
   generateMatrix() {
-    if(this.logged_in) {
-      this.matrixGenerated = true;
-    }
-    
+    this.matrixGenerated = true;
   }
 }
