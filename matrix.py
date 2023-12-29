@@ -4,7 +4,7 @@ import neopixel
 import random
 import math
 import json
-from flask import Flask, request, flash
+from flask import Flask, request, flash, jsonify, session
 from multiprocessing import Process
 from flask_cors import CORS, cross_origin
 
@@ -95,9 +95,16 @@ class NeopixelMatrix:
         self.rows = rows
         self.cols = cols
         self.auto_write = auto_write
-        self.pixels = neopixel.NeoPixel(
-            pixel_pin, rows * cols, brightness = 0.1, auto_write=auto_write
-        )
+        self.pixel_pin = pixel_pin
+        self.pixels = None
+
+    def initialize(self, rows, cols) -> None:
+        if not self.pixels:
+            self.rows = rows
+            self.cols = cols
+            self.pixels = neopixel.NeoPixel(
+                self.pixel_pin, rows * cols, brightness = 0.1, auto_write=self.auto_write
+                )
 
     def color_from_hex(self, hex_str) -> (int, int, int):
         h = hex_str.lstrip('#')
@@ -115,38 +122,44 @@ class NeopixelMatrix:
         return (row * self.cols) + (self.cols - col - 1)
 
     def change_pixel_color(self, color, row, col) -> None:
-        self.pixels[self.get_pixel_location(row, col)] = color
-        if not self.auto_write:
-            self.pixels.show()
-
-    def change_pixel_colors(self, pixel_data_json) -> None:
-        pixel_data_map = json.loads(pixel_data_json)
-        if 'data' in pixel_data_map:
-            for pixel in pixel_data_map['data']:
-                self.pixels[self.get_pixel_location(pixel['row'], pixel['col'])] = self.color_from_hex(pixel['color'])
+        if self.pixels:
+            self.pixels[self.get_pixel_location(row, col)] = color
             if not self.auto_write:
                 self.pixels.show()
 
+    def change_pixel_colors(self, pixel_data_json) -> None:
+        if self.pixels:
+            pixel_data_map = json.loads(pixel_data_json)
+            if 'data' in pixel_data_map:
+                for pixel in pixel_data_map['data']:
+                    self.pixels[self.get_pixel_location(pixel['row'], pixel['col'])] = self.color_from_hex(pixel['color'])
+                if not self.auto_write:
+                    self.pixels.show()
+
     def matrix_fill_rgb(self, r, g, b) -> None:
-        for i in range(self.rows):
-            for j in range(self.cols):
-                self.pixels[self.get_pixel_location(i,j)] = (r, g, b)
-        if not self.auto_write:
-            self.pixels.show()
+        if self.pixels:
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    self.pixels[self.get_pixel_location(i,j)] = (r, g, b)
+            if not self.auto_write:
+                self.pixels.show()
 
     def matrix_fill_color(self, color) -> None:
         self.matrix_fill_rgb(color[0], color[1], color[2])
 
     def apply_mask(self, mask_matrix, mask_rows, mask_cols):
-        for i in range(mask_rows):
-            for j in range(mask_cols):
-                self.pixels[self.get_pixel_location(i, j)] = mask_matrix[i][j]
+        if self.pixels:
+            for i in range(mask_rows):
+                for j in range(mask_cols):
+                    self.pixels[self.get_pixel_location(i, j)] = mask_matrix[i][j]
 
-        if not self.auto_write:
-            self.pixels.show()
+            if not self.auto_write:
+                self.pixels.show()
 
     def deinit(self):
-        self.pixels.deinit()
+        if self.pixels:
+            self.pixels.deinit()
+            self.pixels = None
 
 def get_random_color():
     return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
@@ -243,35 +256,85 @@ def counter_clockwise_spin_animation(matrix, loop_iterations, fill_color,  line_
         matrix.matrix_fill_color(fill_color)
         matrix.change_pixel_colors(pixel_data_vert(line_color_hex))
         time.sleep(1/30)
+        
 
 if __name__ == '__main__':
  
     app = Flask(__name__); 
     app.config['CORS_HEADERS'] = 'Content-Type'
+    app.secret_key = 'BAD_SECRET_KEY'
 
-    pixel_matrix = NeopixelMatrix(ROWS, COLS, PIXEL_PIN, False)
-    cors = CORS(app, resources={r"/picker-change|/logout": {"origins": "http://localhost:port"}})
-    
+    cors = CORS(app, resources={r"/picker-change|/logout|/connect": {"origins": "http://localhost:port"}})
+    pixel_matrix = None
+    current_connection_uuid = None
+
+    def initialize_matrix():
+        global pixel_matrix
+        if not pixel_matrix:
+            pixel_matrix = NeopixelMatrix(ROWS,COLS,PIXEL_PIN, False)
+            pixel_matrix.initialize(ROWS,COLS)
+
+    def deinit_matrix():
+        global pixel_matrix
+        try:
+            pixel_matrix.deinit() # maybe return a server error code if this is problematic. 
+        finally:
+            pixel_matrix = None
+
 
     @app.route('/picker-change', methods = ['POST'])
-    @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
+    @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
     def picker_change(origin='localhost',headers=['Content-Type','Authorization']):
-        if request.content_type == 'application/json':
-            print(f"request.json type: {request.json}")
-            pixel_matrix.change_pixel_colors(json.dumps(request.json))
-            return json.dumps({ "status": 200, "statusText": "OK"})
-
+        global pixel_matrix
+        global current_connection_uuid
+        if pixel_matrix:
+            if request.content_type == 'application/json':
+                data = request.get_json()
+                if data['connection-id'] == current_connection_uuid:
+                    try:
+                        print("uuid: ", session['current_connection_uuid'])
+                    except KeyError:
+                        print("No uuid in session.") 
+                    pixel_matrix.change_pixel_colors(json.dumps(request.json))
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
+                else:
+                    return json.dumps({"error": "Bad connection.","status": 501, "connection-id": current_connection_uuid})
+            else:
+                flash("Request must be type application/json.")
+                return json.dumps({ "status": 200, "statusText": "OK", "connection-id": current_connection_uuid})
         else:
-            flash("Request must be type application/json.")
-            return json.dumps({ "status": 200, "statusText": "OK"})
+            return json.dumps({"error": "No connection. Please connect.", "status": 501})
         
 
-    @app.route('/logout')
+    @app.route('/connect', methods = ['POST'])
     @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
-    def logout() -> None:
-        pixel_matrix.deinit()
-        print("Calling logout. Shutting down program.")
-        exit(0)
+    def connect():
+        if 'current_connection_uuid' in session:
+            return json.dumps({"connection-id": session['current_connection_uuid'], "status": 409})
+        else:
+            global current_connection_uuid
+            if request.content_type == 'application/json':
+                data = request.get_json()
+                try:
+                    session['current_connection_uuid'] = data['connection-id']
+                    current_connection_uuid = data['connection-id']
+                    initialize_matrix()
+                    print("current_connection_uuid: ", session['current_connection_uuid'])
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
+                except KeyError as ke:
+                    return json.dumps({"error": "Missing connection-id", "status": 411})
+            else:
+                return json.dumps({"error": "Server only excepts application/json requests.", "status": 411})
+
+    @app.route('/logout', methods=['POST'])
+    @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+    def logout():
+        global current_connection_uuid
+        deinit_matrix()
+        conn_id = session.pop('current_connection_uuid', default="")
+        current_connection_uuid = None
+        return json.dumps({"connection-id": conn_id, "status": 200})
+
 
     app.run(host="10.0.0.110")
     

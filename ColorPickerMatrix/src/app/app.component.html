@@ -1,4 +1,7 @@
-<div style="text-align: center; margin-top: 20px;">
+<app-navbar></app-navbar> <!--[logged_in]="matrixGenerated"-->
+<!--<p>logged_in: {{logged_in}}</p>
+<p>matrixGenerated: {{matrixGenerated}}</p>-->
+<div *ngIf="logged_in && !matrixGenerated" style="text-align: center; margin-top: 20px;">
   <label for="rows">Rows:</label>
   <input type="number" id="rows" [(ngModel)]="numRows" />
 
