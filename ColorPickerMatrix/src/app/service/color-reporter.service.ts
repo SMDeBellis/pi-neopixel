@@ -42,8 +42,8 @@ export class ColorReporterService {
         (response) => { 
           console.log(response);
           this.connectedSubject.next(true);
-          this.rows = (response as any).rows;
-          this.columns = (response as any).cols;
+          this.rows.next((response as any).rows);
+          this.columns.next((response as any).cols);
         },
         error => {
           console.log("Error connecting to server.");
