@@ -320,7 +320,7 @@ if __name__ == '__main__':
                     current_connection_uuid = data['connection-id']
                     initialize_matrix()
                     print("current_connection_uuid: ", session['current_connection_uuid'])
-                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid']})
+                    return json.dumps({ "status": 200, "statusText": "OK", "connection-id": session['current_connection_uuid'], "rows": ROWS, "cols": COLS})
                 except KeyError as ke:
                     return json.dumps({"error": "Missing connection-id", "status": 411})
             else:

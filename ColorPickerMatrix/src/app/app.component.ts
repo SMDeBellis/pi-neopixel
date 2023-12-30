@@ -22,6 +22,12 @@ export class AppComponent {
         this.numColumns = 0;
       }
     });
+    this.colorReporterService.rows$.subscribe( v => {
+      this.numRows = v;
+    });
+    this.colorReporterService.columns$.subscribe( v => {
+      this.numColumns = v;
+    });
   }
 
   generateMatrix() {

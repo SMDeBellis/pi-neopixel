@@ -1,7 +1,7 @@
 <app-navbar></app-navbar> <!--[logged_in]="matrixGenerated"-->
 <!--<p>logged_in: {{logged_in}}</p>
 <p>matrixGenerated: {{matrixGenerated}}</p>-->
-<div *ngIf="logged_in && !matrixGenerated" style="text-align: center; margin-top: 20px;">
+<!-- <div *ngIf="logged_in && !matrixGenerated" style="text-align: center; margin-top: 20px;">
   <label for="rows">Rows:</label>
   <input type="number" id="rows" [(ngModel)]="numRows" />
 
@@ -9,6 +9,6 @@
   <input type="number" id="columns" [(ngModel)]="numColumns" />
 
   <button (click)="generateMatrix()">Generate Matrix</button>
-</div>
+</div> -->
 
 <app-color-matrix *ngIf="matrixGenerated" [rows]="numRows" [columns]="numColumns"></app-color-matrix>
